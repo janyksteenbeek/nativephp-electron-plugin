@@ -28,11 +28,24 @@ router.post('/position', (req, res) => {
     (_a = state_1.default.windows[id]) === null || _a === void 0 ? void 0 : _a.setPosition(parseInt(x), parseInt(y), animate);
     res.sendStatus(200);
 });
+router.post('/reload', (req, res) => {
+    var _a;
+    const { id } = req.body;
+    (_a = state_1.default.windows[id]) === null || _a === void 0 ? void 0 : _a.reload();
+    res.sendStatus(200);
+});
 router.post('/close', (req, res) => {
     const { id } = req.body;
     if (state_1.default.windows[id]) {
         state_1.default.windows[id].close();
         delete state_1.default.windows[id];
+    }
+    return res.sendStatus(200);
+});
+router.post('/hide', (req, res) => {
+    const { id } = req.body;
+    if (state_1.default.windows[id]) {
+        state_1.default.windows[id].hide();
     }
     return res.sendStatus(200);
 });
@@ -56,7 +69,7 @@ router.post('/always-on-top', (req, res) => {
     res.sendStatus(200);
 });
 router.post('/open', (req, res) => {
-    let { id, x, y, frame, width, height, minWidth, minHeight, maxWidth, maxHeight, focusable, hasShadow, url, resizable, movable, minimizable, maximizable, closable, title, alwaysOnTop, titleBarStyle, vibrancy, backgroundColor, transparency, showDevTools, fullscreen, kiosk, autoHideMenuBar, } = req.body;
+    let { id, x, y, frame, width, height, minWidth, minHeight, maxWidth, maxHeight, focusable, hasShadow, url, resizable, movable, minimizable, maximizable, closable, title, alwaysOnTop, titleBarStyle, trafficLightPosition, vibrancy, backgroundColor, transparency, showDevTools, fullscreen, kiosk, autoHideMenuBar, } = req.body;
     if (state_1.default.windows[id]) {
         state_1.default.windows[id].show();
         state_1.default.windows[id].focus();
@@ -80,6 +93,7 @@ router.post('/open', (req, res) => {
         closable,
         hasShadow,
         titleBarStyle,
+        trafficLightPosition,
         vibrancy,
         focusable,
         autoHideMenuBar }, (process.platform === 'linux' ? { icon: state_1.default.icon } : {})), { webPreferences: {
@@ -145,6 +159,12 @@ router.post('/open', (req, res) => {
         }
         (0, utils_1.notifyLaravel)('events', {
             event: 'Native\\Laravel\\Events\\Windows\\WindowClosed',
+            payload: [id]
+        });
+    });
+    window.on('hide', (evt) => {
+        (0, utils_1.notifyLaravel)('events', {
+            event: 'Native\\Laravel\\Events\\Windows\\WindowHidden',
             payload: [id]
         });
     });

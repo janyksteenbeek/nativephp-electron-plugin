@@ -30,12 +30,28 @@ router.post('/position', (req, res) => {
   res.sendStatus(200)
 })
 
+router.post('/reload', (req, res) => {
+  const {id} = req.body
+  state.windows[id]?.reload()
+
+  res.sendStatus(200)
+});
+
 router.post('/close', (req, res) => {
     const {id} = req.body
 
     if (state.windows[id]) {
         state.windows[id].close()
         delete state.windows[id]
+    }
+    return res.sendStatus(200)
+})
+
+router.post('/hide', (req, res) => {
+    const {id} = req.body
+
+    if (state.windows[id]) {
+        state.windows[id].hide()
     }
     return res.sendStatus(200)
 })
@@ -86,6 +102,7 @@ router.post('/open', (req, res) => {
         title,
         alwaysOnTop,
         titleBarStyle,
+        trafficLightPosition,
         vibrancy,
         backgroundColor,
         transparency,
@@ -135,6 +152,7 @@ router.post('/open', (req, res) => {
         closable,
         hasShadow,
         titleBarStyle,
+        trafficLightPosition,
         vibrancy,
         focusable,
         autoHideMenuBar,
@@ -215,6 +233,13 @@ router.post('/open', (req, res) => {
         }
         notifyLaravel('events', {
             event: 'Native\\Laravel\\Events\\Windows\\WindowClosed',
+            payload: [id]
+        })
+    })
+
+    window.on('hide', (evt) => {
+        notifyLaravel('events', {
+            event: 'Native\\Laravel\\Events\\Windows\\WindowHidden',
             payload: [id]
         })
     })
